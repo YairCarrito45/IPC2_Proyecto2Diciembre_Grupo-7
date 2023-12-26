@@ -44,23 +44,29 @@ class AddProductoForm (forms.ModelForm):
             'stock': 'stock producto: ',
             'imagen': 'Imagen: '
 
-        }        
+        }     
 
-class EditarProductoForm(forms.ModelForm):
+class EditProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
         fields = ('nombre', 'descripcion', 'precio', 'stock', 'imagen')
         labels = {
+
             'nombre': 'Nombre producto: ',
             'descripcion': 'Descripcion producto: ',
             'precio': 'Precio producto: ',
-            'stock': 'Stock producto: ',
-            'imagen': 'Imagen: ',
+            'stock': 'stock producto: ',
+            'imagen': 'Imagen: '
+
+        } 
+        widgets ={
+            'nombre': forms.TextInput(attrs={'id': 'nombre_editar'}),
+            'descripcion': forms.TextInput(attrs={'id': 'descripcion_editar'}),
+            'precio': forms.TextInput(attrs={'type': 'text', 'id': 'precio_editar'}),
+            'stock': forms.TextInput(attrs={'type': 'text', 'id': 'stock_editar'}),
+            'imagen': forms.ClearableFileInput(attrs={'id': 'imagen_editar'}),
         }
-        widgets = {
-            'nombre': forms.TextInput(attrs={'id': 'nombre_editar_producto'}),
-            'descripcion': forms.Textarea(attrs={'id': 'descripcion_editar_producto'}),
-            'precio': forms.TextInput(attrs={'id': 'precio_editar_producto'}),
-            'stock': forms.TextInput(attrs={'id': 'stock_editar_producto'}),
-            'imagen': forms.ClearableFileInput(attrs={'id': 'imagen_editar_producto'}),
-        }
+           
+
+
+        

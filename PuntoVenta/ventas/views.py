@@ -1,10 +1,10 @@
 import os
 from django.shortcuts import render, redirect
 from .models import Cliente, Producto
-from .forms import AddClienteForm, EditarClienteForm, AddProductoForm
+from .forms import AddClienteForm, EditarClienteForm, AddProductoForm, EditProductoForm
 from django.contrib import messages
 # Create your views here.
-#  solo ventas
+
 def ventas_view(request):
     num_ventas = 156
     context = {
@@ -12,9 +12,6 @@ def ventas_view(request):
     }
     return render(request, 'ventas.html', context)
 
-
-
-# clientes
 def clientes_view(request):
     clientes = Cliente.objects.all()
     form_personal = AddClienteForm()
@@ -61,22 +58,20 @@ def delete_cliente_view(request):
         
     return redirect('Clientes')
 
-
-
-#productos
 def productos_view(request):
     """
     clientes = Cliente.objects.all()
     form_personal = AddClienteForm()
     form_editar = EditarClienteForm()
-    """
+     """
     productos = Producto.objects.all()
     form_add = AddProductoForm()
-
+    form_editar_producto = EditProductoForm()
 
     context = {
         'productos': productos,
-        'form_add': form_add
+        'form_add': form_add,
+        'form_editar_producto': form_editar_producto
         
     }
     return render(request, 'productos.html', context)
@@ -94,27 +89,26 @@ def add_producto_view(request):
                 messages(request, "Error al Guardar el Producto")
                 return redirect('Productos')
         return redirect('Productos')
-
+    
 #editar formulario
 def edit_producto_view(request): 
     if request.POST:
         producto = Producto.objects.get(pk=request.POST.get('id_producto_editar'))
-        form = EditarClienteForm(
+        form = EditProductoForm(
             request.POST, request.FILES, instance= producto)
         if form.is_valid:
             form.save()
-    return redirect('Producto')
+    return redirect('Productos')
 
-
-#eliminar cliente de formulario
 def delete_producto_view(request):
     if request.POST:
         producto = Producto.objects.get(pk=request.POST.get('id_producto_eliminar'))
         if producto.imagen:
-            os.remove(producto.imagen.path)
-        producto.delete()
-        
-    return redirect('Producto')    
-    
+            # Eliminar la imagen asociada al producto si existe
+            if os.path.exists(producto.imagen.path):
+                os.remove(producto.imagen.path)
+        # Eliminar el producto
+        producto.delete() 
 
+    return redirect('Productos')
 

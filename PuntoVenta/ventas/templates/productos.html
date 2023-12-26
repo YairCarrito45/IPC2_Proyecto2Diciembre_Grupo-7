@@ -48,9 +48,9 @@
                 <h5 class="modal-title text-dark">Editar</h5>
             </div>
             <div class="modal-body bg-dark text-white">
-                <form method="POST" action="{% url 'EditCliente' %}" enctype="multipart/form-data">{% csrf_token %}
-                    <input type="hidden" id="id_personal_editar" name="id_personal_editar">
-                    {% for field in form_editar %}
+                <form method="POST" action="{% url 'EditProducto' %}" enctype="multipart/form-data">{% csrf_token %}
+                    <input type="hidden" id="id_producto_editar" name="id_producto_editar">
+                    {% for field in form_editar_producto %}
                     <p> {{field.label}} <br>
                         {{field|add_class:"form-control"}}</p>
                     {% for error in field.errors %}
@@ -82,8 +82,8 @@
             </div>
             <div class="modal-body bg-dark text-white">
                 <p class="labelmodal">¿Estás seguro?</p>
-                <form method="POST" action="{% url 'DeleteCliente' %}">{% csrf_token %}
-                    <input type="hidden" id="id_personal_eliminar" name="id_personal_eliminar">
+                <form method="POST" action="{% url 'DeleteProducto' %}">{% csrf_token %}
+                    <input type="hidden" id="id_producto_eliminar" name="id_producto_eliminar">
             </div>
             <div class="modal-footer bg-dark text-white">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">
@@ -137,10 +137,10 @@
                         <td>no hay imagen disponible</td>
                         {% endif %}
                         <td>
-                            <button onclick="" class="btn btn-dark-outline btn-sm" data-toggle="modal"
+                            <button onclick="editarProduct('{{i.id}}', '{{i.nombre}}', '{{i.descripcion}}', '{{i.precio}}', '{{i.stock}}','{{i.imagen}}')" class="btn btn-dark-outline btn-sm" data-toggle="modal"
                                 href="#EditarPersonalModal"><img src="{% static 'index/img/editar.png' %}" alt="Error"
                                     width="30"></button>
-                            <button onclick="" class="btn btn-dark-outline btn-sm"
+                            <button onclick="eliminarProducto('{{i.id}}')" class="btn btn-dark-outline btn-sm"
                                 data-toggle="modal" href="#EliminarPersonalModal"><img
                                     src="{% static 'index/img/delete.png' %}" alt="Error" width="30"></button>
                         </td>

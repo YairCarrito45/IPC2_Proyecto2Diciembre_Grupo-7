@@ -23,13 +23,13 @@ function editarEquipo(id, area, codigo, descripcion) {
   document.getElementById("descripcion_editar").value = descripcion;
 }
 
-function editarProduct(id, precio, descripcion, costo, cantidad, categoria, servicio) {
+function editarProduct(id, nombre, descripcion, precio, stock, imagen) {
   document.getElementById("id_producto_editar").value = id;
-  document.getElementById("precio_editar").value = precio;
+  document.getElementById("nombre_editar").value = nombre;
   document.getElementById("descripcion_editar").value = descripcion;
-  document.getElementById("costo_editar").value = costo;
-  document.getElementById("cantidad_editar").value = cantidad;
-  document.getElementById("categoria_editar").value = categoria;
+  document.getElementById("precio_editar").value = precio;
+  document.getElementById("stock_editar").value = stock;
+  document.getElementById("imagen_editar").value = imagen;
   if (servicio=='True'){
     document.getElementById('servicio_editar').checked=true;
   }
