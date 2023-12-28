@@ -15,6 +15,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
 
+
 # Create your views here.
 
 def ventas_view(request):
