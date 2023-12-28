@@ -54,3 +54,4 @@ class DetalleFactura(models.Model):
 
     def __str__(self):
         return f"Detalle de factura {self.factura.id} - {self.producto.nombre}"
+

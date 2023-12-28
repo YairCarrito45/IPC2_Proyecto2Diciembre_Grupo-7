@@ -15,7 +15,11 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
 
-
+#xml
+from django.http import HttpResponse
+from django.core.serializers import serialize
+import xml.etree.ElementTree as ET
+from django.views import View
 # Create your views here.
 
 def ventas_view(request):
@@ -255,3 +259,66 @@ def get_image_url(image_stream, filename):
     image_url = os.path.join(settings.MEDIA_URL, filename)
     return image_url
 
+def export_to_xml(request):
+    # Obtén los datos que deseas exportar
+    clientes = Cliente.objects.all()
+    productos = Producto.objects.all()
+    facturas = Factura.objects.all()
+    detalles_factura = DetalleFactura.objects.all()
+
+    # Serializa los datos a XML
+    clientes_xml = serialize('xml', clientes)
+    productos_xml = serialize('xml', productos)
+    facturas_xml = serialize('xml', facturas)
+    detalles_factura_xml = serialize('xml', detalles_factura)
+
+    # Combina los datos en un archivo XML
+    xml_content = f"""
+    <data>
+        {clientes_xml}
+        {productos_xml}
+        {facturas_xml}
+        {detalles_factura_xml}
+    </data>
+    """
+
+    # Devuelve los datos como respuesta HTTP
+    response = HttpResponse(xml_content, content_type='application/xml')
+    response['Content-Disposition'] = 'attachment; filename=data.xml'
+    return response
+
+
+class ExportToXMLView(View):
+    def get(self, request, *args, **kwargs):
+        # Obtener datos de clientes y productos
+        clientes = Cliente.objects.all()
+        productos = Producto.objects.all()
+
+        # Crear el elemento raíz del XML
+        root = ET.Element("data")
+
+        # Crear elementos para clientes
+        clientes_element = ET.SubElement(root, "clientes")
+        for cliente in clientes:
+            cliente_element = ET.SubElement(clientes_element, "cliente")
+            ET.SubElement(cliente_element, "nit").text = str(cliente.nit)
+            ET.SubElement(cliente_element, "nombre").text = cliente.nombre
+            ET.SubElement(cliente_element, "telefono").text = cliente.telefono
+            ET.SubElement(cliente_element, "direccion").text = cliente.direccion
+
+        # Crear elementos para productos
+        productos_element = ET.SubElement(root, "productos")
+        for producto in productos:
+            producto_element = ET.SubElement(productos_element, "producto")
+            ET.SubElement(producto_element, "nombre").text = producto.nombre
+            ET.SubElement(producto_element, "descripcion").text = producto.descripcion
+            ET.SubElement(producto_element, "precio").text = str(producto.precio)
+            ET.SubElement(producto_element, "stock").text = str(producto.stock)
+
+        # Crear el árbol XML y escribirlo en la respuesta HTTP
+        tree = ET.ElementTree(root)
+        response = HttpResponse(content_type="application/xml")
+        response["Content-Disposition"] = 'attachment; filename="datos.xml"'
+        tree.write(response)
+
+        return response

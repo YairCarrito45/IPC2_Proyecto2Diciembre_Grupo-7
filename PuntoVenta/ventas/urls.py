@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from .views import ExportToXMLView
+
 
 urlpatterns = [
     path('', views.ventas_view, name='Ventas'),
@@ -16,5 +18,5 @@ urlpatterns = [
     path('detalle_factura/<int:factura_id>/', views.detalle_factura_view, name='detalle_factura'),
     path('eliminar_factura/<int:factura_id>/', views.eliminar_factura_view, name='eliminar_factura'),
     path('graficos/', views.graficos_view, name='graficos'),
-
+    path('exportar-xml/', ExportToXMLView.as_view(), name='exportar_xml'),
 ]
