@@ -34,3 +34,23 @@ class Producto(models.Model):
     def __str__(self):
         return self.descripcion
 
+from django.db import models
+from ventas.models import Cliente, Producto
+
+class Factura(models.Model):
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now_add=True)
+    total = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+
+    def __str__(self):
+        return f"Factura {self.id} - {self.cliente.nombre}"
+
+class DetalleFactura(models.Model):
+    factura = models.ForeignKey(Factura, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=15, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+
+    def __str__(self):
+        return f"Detalle de factura {self.factura.id} - {self.producto.nombre}"

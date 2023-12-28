@@ -145,6 +145,19 @@
         </div>
     </div>
 </div>
+
+<!-- Agrega este formulario al final del contenido de clientes.html -->
+<form method="POST" action="{% url 'seleccionar_cliente' %}" id="seleccionarClienteForm">
+    {% csrf_token %}
+    <label for="id_cliente">Seleccionar Cliente:</label>
+    <select name="cliente_id" id="id_cliente" class="form-control">
+        {% for cliente in clientes %}
+            <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-success mt-2">Seleccionar Cliente</button>
+</form>
+
 {% if messages %}
 {% for message in messages %}
 <script>

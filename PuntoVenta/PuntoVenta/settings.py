@@ -26,6 +26,8 @@ SECRET_KEY = 'django-insecure-wp*g$rlnoaaltxdf(=_mf*3jihz6peock0t%zws_4=6*r*f*5p
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
 
 
 # Application definition
