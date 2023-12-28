@@ -3,6 +3,21 @@ from django.shortcuts import render, redirect
 from .models import Cliente, Producto
 from .forms import AddClienteForm, EditarClienteForm, AddProductoForm, EditProductoForm
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
+from .models import Factura, DetalleFactura
+from django.db import transaction
+import matplotlib
+from django.db.models import Sum
+
+
+# Selecciona el backend adecuado para Matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
+import numpy as np
+from django.http import HttpResponse
+
 # Create your views here.
 
 def ventas_view(request):
@@ -111,4 +126,102 @@ def delete_producto_view(request):
         producto.delete() 
 
     return redirect('Productos')
+
+def seleccionar_cliente_view(request):
+    if request.method == 'POST':
+        cliente_id = request.POST.get('cliente_id')
+        
+        request.session['cliente_id'] = cliente_id
+    return redirect('Productos') 
+
+
+@transaction.atomic
+def realizar_compra_view(request):
+    if request.method == 'POST':
+        cliente_id = request.session.get('cliente_id')
+        
+        if cliente_id is None:
+            messages.error(request, "Cliente no seleccionado.")
+            return redirect('Clientes')
+
+        productos_ids = request.POST.getlist('productos[]')
+
+        try:
+            with transaction.atomic():
+                factura = Factura.objects.create(cliente_id=cliente_id)
+
+                total_factura = 0
+                for producto_id in productos_ids:
+                    producto = Producto.objects.get(pk=producto_id)
+                    if producto.stock > 0:
+                        producto.stock -= 1
+                        producto.save()
+
+                        detalle = DetalleFactura.objects.create(
+                            factura=factura,
+                            producto=producto,
+                            cantidad=1,
+                            precio_unitario=producto.precio,
+                            subtotal=producto.precio
+                        )
+
+                        total_factura += detalle.subtotal
+
+                factura.total = total_factura
+                factura.save()
+
+                messages.success(request, "Compra realizada con éxito.")
+
+        except Exception as e:
+            messages.error(request, f"Error al realizar la compra: {str(e)}")
+
+    return redirect('Productos')
+
+
+def ventas_view(request):
+    facturas = Factura.objects.all()
+    return render(request, 'ventas.html', {'facturas': facturas})
+
+
+def detalle_factura_view(request, factura_id):
+    factura = get_object_or_404(Factura, pk=factura_id)
+    detalles_factura = DetalleFactura.objects.filter(factura=factura)
+
+    context = {
+        'factura': factura,
+        'detalles_factura': detalles_factura,
+    }
+
+    return render(request, 'detalle_factura.html', context)
+
+
+def eliminar_factura_view(request, factura_id):
+    factura = get_object_or_404(Factura, pk=factura_id)
+
+    factura.delete()
+    return redirect('Ventas')
+
+
+def graficos_view(request):
+    productos_mas_vendidos = Producto.objects.annotate(total_vendido=Sum('detallefactura__cantidad')).order_by('-total_vendido')[:10]
+
+    productos_mas_vendidos = [p for p in productos_mas_vendidos if p.total_vendido is not None]
+
+    nombres_productos = [p.nombre for p in productos_mas_vendidos]
+    cantidades_vendidas = [p.total_vendido for p in productos_mas_vendidos]
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(nombres_productos, cantidades_vendidas)
+    plt.title('Productos más vendidos')
+    plt.xlabel('Productos')
+    plt.ylabel('Cantidad vendida')
+    
+    image_stream = BytesIO()
+    plt.savefig(image_stream, format="png")
+    plt.close()
+    image_stream.seek(0)
+
+    response = HttpResponse(content_type="image/png")
+    response.write(image_stream.getvalue())
+    return response
 
