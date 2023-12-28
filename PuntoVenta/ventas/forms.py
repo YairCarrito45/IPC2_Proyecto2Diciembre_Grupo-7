@@ -66,7 +66,7 @@ class EditProductoForm(forms.ModelForm):
             'stock': forms.TextInput(attrs={'type': 'text', 'id': 'stock_editar'}),
             'imagen': forms.ClearableFileInput(attrs={'id': 'imagen_editar'}),
         }
-           
+        
 
 
         
