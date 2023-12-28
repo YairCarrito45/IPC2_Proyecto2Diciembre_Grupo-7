@@ -7,16 +7,13 @@ from django.shortcuts import get_object_or_404
 from .models import Factura, DetalleFactura
 from django.db import transaction
 import matplotlib
-from django.db.models import Sum
-
+from django.db.models import Sum , Count
+from django.conf import settings
 
 # Selecciona el backend adecuado para Matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
-import base64
-import numpy as np
-from django.http import HttpResponse
 
 # Create your views here.
 
@@ -78,7 +75,7 @@ def productos_view(request):
     clientes = Cliente.objects.all()
     form_personal = AddClienteForm()
     form_editar = EditarClienteForm()
-     """
+    """
     productos = Producto.objects.all()
     form_add = AddProductoForm()
     form_editar_producto = EditProductoForm()
@@ -203,6 +200,7 @@ def eliminar_factura_view(request, factura_id):
 
 
 def graficos_view(request):
+    # Gráfico de productos más vendidos
     productos_mas_vendidos = Producto.objects.annotate(total_vendido=Sum('detallefactura__cantidad')).order_by('-total_vendido')[:10]
 
     productos_mas_vendidos = [p for p in productos_mas_vendidos if p.total_vendido is not None]
@@ -216,12 +214,43 @@ def graficos_view(request):
     plt.xlabel('Productos')
     plt.ylabel('Cantidad vendida')
     
-    image_stream = BytesIO()
-    plt.savefig(image_stream, format="png")
+    image_stream_productos = BytesIO()
+    plt.savefig(image_stream_productos, format="png")
     plt.close()
-    image_stream.seek(0)
+    image_stream_productos.seek(0)
 
-    response = HttpResponse(content_type="image/png")
-    response.write(image_stream.getvalue())
-    return response
+    # Gráfico de clientes con más compras
+    clientes_mas_repiten = Cliente.objects.annotate(num_compras=Count('factura')).order_by('-num_compras')[:10]
+
+    nombres_clientes = [cliente.nombre for cliente in clientes_mas_repiten]
+    num_compras = [cliente.num_compras for cliente in clientes_mas_repiten]
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(nombres_clientes, num_compras)
+    plt.title('Clientes con más compras')
+    plt.xlabel('Clientes')
+    plt.ylabel('Número de compras')
+    
+    image_stream_clientes = BytesIO()
+    plt.savefig(image_stream_clientes, format="png")
+    plt.close()
+    image_stream_clientes.seek(0)
+
+    context = {
+        'image_url_productos': get_image_url(image_stream_productos, 'grafico_productos.png'),
+        'image_url_clientes': get_image_url(image_stream_clientes, 'grafico_clientes.png'),
+    }
+
+    return render(request, 'graficos.html', context)
+
+
+def get_image_url(image_stream, filename):
+    # Guardar la imagen en el sistema de archivos
+    image_path = os.path.join(settings.MEDIA_ROOT, filename)
+    with open(image_path, 'wb') as f:
+        f.write(image_stream.read())
+
+    # Proporcionar una URL para acceder a la imagen
+    image_url = os.path.join(settings.MEDIA_URL, filename)
+    return image_url
 
