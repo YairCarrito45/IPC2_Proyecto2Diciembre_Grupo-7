@@ -7,8 +7,8 @@
 
 <link rel="stylesheet" href="{% static 'index/css/b4.css' %}">
 <script src="{% static 'index/js/b4.js' %}"></script>
-
-
+<!-- Botón para descargar XML -->
+<a href="{% url 'descargar_xml_clientes' %}" class="btn btn-info mt-2">Descargar XML</a>
 <div id="AgregarPersonalModal" class="modal" style="overflow: scroll;">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -63,7 +63,7 @@
             </div>
             <div class="modal-footer bg-dark text-white">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">
-                   Volver
+                    Volver
                 </button>
                 <button type="submit" class="btn btn-success">
                     Aceptar
@@ -87,7 +87,7 @@
             </div>
             <div class="modal-footer bg-dark text-white">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">
-                   Volver
+                    Volver
                 </button>
                 <button type="submit" class="btn btn-success">
                     Aceptar
@@ -100,10 +100,9 @@
 
 <div class="row">
     <div class="col-md-12">
-        <h3 class="text-center">Clientes   <i class="fas fa-users"></i></h3>
+        <h3 class="text-center">Clientes <i class="fas fa-users"></i></h3>
         <div class="col-md-3 pb-2">
-            <a href="#AgregarPersonalModal"
-                data-toggle="modal" data-dismiss="modal">
+            <a href="#AgregarPersonalModal" data-toggle="modal" data-dismiss="modal">
                 <button type="button" class="btn btn-success">
                     Agregar Cliente
                     <i class="fas fa-plus-circle"></i>
@@ -158,15 +157,17 @@
     <button type="submit" class="btn btn-success mt-2">Seleccionar Cliente</button>
 </form>
 
+
+
 {% if messages %}
-{% for message in messages %}
-<script>
-    Swal.fire({
-        icon: 'error',
-        title: 'Error...',
-        text: "{{message}}",
-    })
-</script>
-{% endfor %}
+    {% for message in messages %}
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error...',
+            text: "{{message}}",
+        })
+    </script>
+    {% endfor %}
 {% endif %}
 {% endblock %}

@@ -9,6 +9,7 @@ from django.db import transaction
 import matplotlib
 from django.db.models import Sum , Count
 from django.conf import settings
+from django.template import loader
 
 # Selecciona el backend adecuado para Matplotlib
 matplotlib.use('Agg')
@@ -322,3 +323,41 @@ class ExportToXMLView(View):
         tree.write(response)
 
         return response
+    
+def descargar_xml_clientes(request):
+    # Obtén la lista de clientes desde tu base de datos (puedes ajustar esto según tu modelo)
+    clientes = Cliente.objects.all()
+
+    # Crea un objeto XML
+    root = ET.Element("clientes")
+    for cliente in clientes:
+        cliente_element = ET.SubElement(root, "cliente")
+        ET.SubElement(cliente_element, "id").text = str(cliente.id)
+        ET.SubElement(cliente_element, "nit").text = cliente.nit
+        ET.SubElement(cliente_element, "nombre").text = cliente.nombre
+        ET.SubElement(cliente_element, "telefono").text = cliente.telefono
+        ET.SubElement(cliente_element, "direccion").text = cliente.direccion
+
+    xml_data = ET.tostring(root, encoding="utf-8")
+    response = HttpResponse(xml_data, content_type="application/xml")
+    response["Content-Disposition"] = 'attachment; filename="clientes.xml"'
+    return response
+
+def descargar_xml_productos(request):
+    # Obtén la lista de productos desde tu base de datos (ajusta esto según tu modelo)
+    productos = Producto.objects.all()
+
+    # Crea un objeto XML
+    root = ET.Element("productos")
+    for producto in productos:
+        producto_element = ET.SubElement(root, "producto")
+        ET.SubElement(producto_element, "id").text = str(producto.id)
+        ET.SubElement(producto_element, "nombre").text = producto.nombre
+        ET.SubElement(producto_element, "descripcion").text = producto.descripcion
+        ET.SubElement(producto_element, "precio").text = str(producto.precio)
+        ET.SubElement(producto_element, "stock").text = str(producto.stock)
+
+    xml_data = ET.tostring(root, encoding="utf-8")
+    response = HttpResponse(xml_data, content_type="application/xml")
+    response["Content-Disposition"] = 'attachment; filename="productos.xml"'
+    return response

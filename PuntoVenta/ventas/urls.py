@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import ExportToXMLView
+from .views import ExportToXMLView, descargar_xml_clientes,descargar_xml_productos
 
 
 urlpatterns = [
@@ -19,4 +19,6 @@ urlpatterns = [
     path('eliminar_factura/<int:factura_id>/', views.eliminar_factura_view, name='eliminar_factura'),
     path('graficos/', views.graficos_view, name='graficos'),
     path('exportar-xml/', ExportToXMLView.as_view(), name='exportar_xml'),
+    path('descargar-xml-clientes/', descargar_xml_clientes, name='descargar_xml_clientes'),
+    path('descargar-xml-productos/', descargar_xml_productos, name='descargar_xml_productos'),
 ]
