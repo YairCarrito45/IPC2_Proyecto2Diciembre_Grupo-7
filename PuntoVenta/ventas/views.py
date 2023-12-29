@@ -11,7 +11,7 @@ from django.db.models import Sum , Count
 from django.conf import settings
 from django.template import loader
 
-# Selecciona el backend adecuado para Matplotlib
+# libreria Matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from io import BytesIO
